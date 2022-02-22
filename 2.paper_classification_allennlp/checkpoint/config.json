@@ -1,0 +1,64 @@
+{
+    "dataset_reader": {
+        "type": "bert_2_input_reader",
+        "max_tokens": 512,
+        "token_indexers": {
+            "robert": {
+                "type": "pretrained_transformer",
+                "model_name": "/home/featurize/data/bert_pretrain/"
+            }
+        },
+        "tokenizer": {
+            "type": "pretrained_transformer",
+            "model_name": "/home/featurize/data/bert_pretrain/"
+        }
+    },
+    "model": {
+        "type": "simple_classifier",
+        "embedder": {
+            "token_embedders": {
+                "robert": {
+                    "type": "pretrained_transformer",
+                    "model_name": "/home/featurize/data/robert_pretrain/"
+                }
+            }
+        },
+        "encoder": {
+            "type": "bert_pooler",
+            "dropout": 0.1,
+            "pretrained_model": "/home/featurize/data/robert_pretrain/",
+            "requires_grad": true
+        }
+    },
+    "train_data_path": "data/paper_classification/train_small.csv",
+    "trainer": {
+        "checkpointer": {
+            "type": "simple_checkpointer",
+            "save_every_num_seconds": 1200,
+            "serialization_dir": "checkpoint/"
+        },
+        "learning_rate_scheduler": {
+            "type": "slanted_triangular",
+            "cut_frac": 0.06,
+            "num_epochs": 1,
+            "num_steps_per_epoch": 3088
+        },
+        "num_epochs": 1,
+        "optimizer": {
+            "type": "huggingface_adamw",
+            "lr": 1e-05,
+            "weight_decay": 0.1
+        },
+        "validation_metric": "+accuracy"
+    },
+    "vocabulary": {
+        "type": "from_files",
+        "directory": "/home/featurize/data/vocab.tar.gz"
+    },
+    "data_loader": {
+        "batch_size": 2,
+        "cuda_device": 0,
+        "max_instances_in_memory": 40,
+        "shuffle": true
+    }
+}
